@@ -20,19 +20,26 @@ package bisq.api.http.exceptions;
 import bisq.api.http.model.ValidationErrorMessage;
 
 import bisq.core.exceptions.ConstraintViolationException;
+import bisq.core.exceptions.NotFoundException;
 import bisq.core.exceptions.ValidationException;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
 
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import org.eclipse.jetty.io.EofException;
@@ -47,8 +54,21 @@ public final class ExceptionMappers {
     public static void register(ResourceConfig environment) {
         environment.register(new ExceptionMappers.EofExceptionMapper(), 1);
         environment.register(new ExceptionMappers.JsonParseExceptionMapper(), 1);
+        environment.register(new ExceptionMappers.JsonMappingExceptionMapper(), 1);
+        environment.register(new ExceptionMappers.ExperimentalFeatureExceptionMapper());
+        environment.register(new ExceptionMappers.InvalidTypeIdExceptionMapper());
+        environment.register(new ExceptionMappers.NotFoundExceptionMapper());
         environment.register(new ExceptionMappers.UnauthorizedExceptionMapper());
         environment.register(new ExceptionMappers.ValidationExceptionMapper());
+    }
+
+    private static Response toResponse(Throwable throwable, Response.Status status) {
+        Response.ResponseBuilder responseBuilder = Response.status(status);
+        String message = throwable.getMessage();
+        if (message != null) {
+            responseBuilder.entity(new ValidationErrorMessage(ImmutableList.of(message)));
+        }
+        return responseBuilder.type(MediaType.APPLICATION_JSON).build();
     }
 
     public static class EofExceptionMapper implements ExceptionMapper<EofException> {
@@ -62,6 +82,59 @@ public final class ExceptionMappers {
         @Override
         public Response toResponse(JsonParseException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    public static class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
+        @Override
+
+        public Response toResponse(JsonMappingException exception) {
+            String message = exception.getMessage();
+            Pattern pattern = Pattern.compile("missing property '(.*)' ");
+            Matcher matcher = pattern.matcher(message);
+            if (matcher.find()) {
+                message = matcher.group(1) + " may not be null";
+            } else {
+                message ="Unable to recognize payload";
+            }
+            return Response.status(422).entity(new ValidationErrorMessage(ImmutableList.of(message))).build();
+        }
+    }
+
+    public static class InvalidTypeIdExceptionMapper implements ExceptionMapper<InvalidTypeIdException> {
+        @Override
+        public Response toResponse(InvalidTypeIdException exception) {
+            Class<?> rawClass = exception.getBaseType().getRawClass();
+            StringBuilder builder = new StringBuilder("Unable to recognize sub type of ")
+                    .append(rawClass.getSimpleName())
+                    .append(". Value '")
+                    .append(exception.getTypeId())
+                    .append("' is invalid.");
+
+            JsonSubTypes annotation = rawClass.getAnnotation(JsonSubTypes.class);
+            if (annotation != null && annotation.value().length > 0) {
+                builder.append(" Allowed values are: ");
+                String separator = ", ";
+                for (JsonSubTypes.Type subType : annotation.value())
+                    builder.append(subType.name()).append(separator);
+                builder.delete(builder.length() - separator.length(), builder.length());
+            }
+
+            return Response.status(422).entity(new ValidationErrorMessage(ImmutableList.of(builder.toString()))).build();
+        }
+    }
+
+    public static class ExperimentalFeatureExceptionMapper implements ExceptionMapper<ExperimentalFeatureException> {
+        @Override
+        public Response toResponse(ExperimentalFeatureException exception) {
+            return ExceptionMappers.toResponse(exception, Response.Status.NOT_IMPLEMENTED);
+        }
+    }
+
+    public static class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {
+        @Override
+        public Response toResponse(NotFoundException exception) {
+            return Response.status(404).entity(exception.getMessage()).type(MediaType.TEXT_PLAIN_TYPE).build();
         }
     }
 

@@ -28,9 +28,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import static bisq.api.http.exceptions.ExceptionMapperTestHelper.assertInstanceOfValidationErrorMessage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 
 
@@ -38,12 +38,6 @@ import com.github.javafaker.Faker;
 import javax.ws.rs.core.Response;
 
 public class ValidationExceptionMapperTest {
-
-
-    private static void assertInstanceOfValidationErrorMessage(Object object) {
-        String message = "Response payload is an instance of " + ValidationErrorMessage.class.getSimpleName();
-        assertTrue(message, object instanceof ValidationErrorMessage);
-    }
 
     @Test
     public void toResponse_constraintViolationException_statusIs422() {
