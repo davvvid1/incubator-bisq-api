@@ -11,6 +11,9 @@
     ],
     "tags": [
         {
+            "name": "payment-accounts"
+        },
+        {
             "name": "user"
         },
         {
@@ -18,6 +21,83 @@
         }
     ],
     "paths": {
+        "/api/v1/payment-accounts/{id}": {
+            "delete": {
+                "tags": [
+                    "payment-accounts"
+                ],
+                "summary": "Remove payment account",
+                "description": "This is EXPERIMENTAL FEATURE! Run it at your own risk! Requires --enableHttpApiExperimentalFeatures flag at startup.",
+                "operationId": "removeById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "default response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/payment-accounts": {
+            "get": {
+                "tags": [
+                    "payment-accounts"
+                ],
+                "summary": "Get existing payment accounts",
+                "operationId": "find",
+                "responses": {
+                    "default": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentAccountList"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "payment-accounts"
+                ],
+                "summary": "Create payment account",
+                "description": "This is EXPERIMENTAL FEATURE! Run it at your own risk! Requires --enableHttpApiExperimentalFeatures flag at startup.\nInspect models section at the bottom of the page for valid PaymentAccount sub-types schemas",
+                "operationId": "create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentAccount"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "default": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentAccount"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/password": {
             "post": {
                 "tags": [
@@ -32,7 +112,8 @@
                                 "$ref": "#/components/schemas/ChangePassword"
                             }
                         }
-                    }
+                    },
+                    "required": true
                 },
                 "responses": {
                     "default": {
@@ -68,6 +149,673 @@
     },
     "components": {
         "schemas": {
+            "AdvancedCashPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "AliPayPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "CashDepositPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    },
+                    "accountType": {
+                        "type": "string"
+                    },
+                    "bankId": {
+                        "type": "string"
+                    },
+                    "bankName": {
+                        "type": "string"
+                    },
+                    "branchId": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "holderEmail": {
+                        "type": "string"
+                    },
+                    "holderTaxId": {
+                        "type": "string"
+                    },
+                    "requirements": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "ChaseQuickPayPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "ClearXchangePaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "emailOrMobileNr": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "CryptoCurrencyPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "F2FPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "contact": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "extraInfo": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "FasterPaymentsPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    },
+                    "sortCode": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "HalCashPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "mobileNr": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "InteracETransferPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "emailOrMobileNr": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "question": {
+                        "type": "string"
+                    },
+                    "answer": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "MoneyBeamPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "MoneyGramPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "NationalBankAccountPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    },
+                    "accountType": {
+                        "type": "string"
+                    },
+                    "bankId": {
+                        "type": "string"
+                    },
+                    "bankName": {
+                        "type": "string"
+                    },
+                    "branchId": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "holderTaxId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "PaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "accountName": {
+                        "type": "string"
+                    },
+                    "paymentDetails": {
+                        "type": "string"
+                    },
+                    "paymentMethod": {
+                        "type": "string"
+                    },
+                    "selectedTradeCurrency": {
+                        "type": "string"
+                    },
+                    "tradeCurrencies": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "discriminator": {
+                    "propertyName": "paymentMethod",
+                    "mapping": {
+                        "ADVANCED_CASH": "#/components/schemas/AdvancedCashPaymentAccount",
+                        "ALI_PAY": "#/components/schemas/AliPayPaymentAccount",
+                        "CASH_DEPOSIT": "#/components/schemas/CashDepositPaymentAccount",
+                        "CHASE_QUICK_PAY": "#/components/schemas/ChaseQuickPayPaymentAccount",
+                        "CLEAR_X_CHANGE": "#/components/schemas/ClearXchangePaymentAccount",
+                        "BLOCK_CHAINS": "#/components/schemas/CryptoCurrencyPaymentAccount",
+                        "F2F": "#/components/schemas/F2FPaymentAccount",
+                        "FASTER_PAYMENTS": "#/components/schemas/FasterPaymentsPaymentAccount",
+                        "HAL_CASH": "#/components/schemas/HalCashPaymentAccount",
+                        "INTERAC_E_TRANSFER": "#/components/schemas/InteracETransferPaymentAccount",
+                        "MONEY_BEAM": "#/components/schemas/MoneyBeamPaymentAccount",
+                        "MONEY_GRAM": "#/components/schemas/MoneyGramPaymentAccount",
+                        "NATIONAL_BANK": "#/components/schemas/NationalBankAccountPaymentAccount",
+                        "PERFECT_MONEY": "#/components/schemas/PerfectMoneyPaymentAccount",
+                        "POPMONEY": "#/components/schemas/PopmoneyPaymentAccount",
+                        "PROMPT_PAY": "#/components/schemas/PromptPayPaymentAccount",
+                        "REVOLUT": "#/components/schemas/RevolutPaymentAccount",
+                        "SAME_BANK": "#/components/schemas/SameBankAccountPaymentAccount",
+                        "SEPA": "#/components/schemas/SepaPaymentAccount",
+                        "SEPA_INSTANT": "#/components/schemas/SepaInstantPaymentAccount",
+                        "SPECIFIC_BANKS": "#/components/schemas/SpecificBanksAccountPaymentAccount",
+                        "SWISH": "#/components/schemas/SwishPaymentAccount",
+                        "UPHOLD": "#/components/schemas/UpholdPaymentAccount",
+                        "US_POSTAL_MONEY_ORDER": "#/components/schemas/USPostalMoneyOrderPaymentAccount",
+                        "WECHAT_PAY": "#/components/schemas/WeChatPayPaymentAccount",
+                        "WESTERN_UNION": "#/components/schemas/WesternUnionPaymentAccount"
+                    }
+                }
+            },
+            "PerfectMoneyPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "PopmoneyPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountId": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "PromptPayPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "promptPayId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "RevolutPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "SameBankAccountPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    },
+                    "accountType": {
+                        "type": "string"
+                    },
+                    "bankId": {
+                        "type": "string"
+                    },
+                    "bankName": {
+                        "type": "string"
+                    },
+                    "branchId": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "holderTaxId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "SepaInstantPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "bic": {
+                        "type": "string"
+                    },
+                    "iban": {
+                        "type": "string"
+                    },
+                    "acceptedCountries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "SepaPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "bic": {
+                        "type": "string"
+                    },
+                    "iban": {
+                        "type": "string"
+                    },
+                    "acceptedCountries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "SpecificBanksAccountPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "acceptedBanks": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "accountNr": {
+                        "type": "string"
+                    },
+                    "accountType": {
+                        "type": "string"
+                    },
+                    "bankId": {
+                        "type": "string"
+                    },
+                    "bankName": {
+                        "type": "string"
+                    },
+                    "branchId": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "holderTaxId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "SwishPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "mobileNr": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "USPostalMoneyOrderPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "postalAddress": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "UpholdPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountId": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "WeChatPayPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNr": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "WesternUnionPaymentAccount": {
+                "required": [
+                    "paymentMethod"
+                ],
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "holderName": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentAccount"
+                    }
+                ]
+            },
+            "PaymentAccountList": {
+                "type": "object",
+                "properties": {
+                    "paymentAccounts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaymentAccount"
+                        }
+                    }
+                }
+            },
             "ChangePassword": {
                 "type": "object",
                 "properties": {
