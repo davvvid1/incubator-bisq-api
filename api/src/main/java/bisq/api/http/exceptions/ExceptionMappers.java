@@ -17,7 +17,15 @@
 
 package bisq.api.http.exceptions;
 
+import bisq.core.exceptions.ConstraintViolationException;
+import bisq.core.exceptions.ValidationException;
+
 import com.fasterxml.jackson.core.JsonParseException;
+
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,6 +46,7 @@ public final class ExceptionMappers {
         environment.register(new ExceptionMappers.EofExceptionMapper(), 1);
         environment.register(new ExceptionMappers.JsonParseExceptionMapper(), 1);
         environment.register(new ExceptionMappers.UnauthorizedExceptionMapper());
+        environment.register(new ExceptionMappers.ValidationExceptionMapper());
     }
 
     public static class EofExceptionMapper implements ExceptionMapper<EofException> {
@@ -58,6 +67,30 @@ public final class ExceptionMappers {
         @Override
         public Response toResponse(UnauthorizedException exception) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
+
+    public static class ValidationExceptionMapper implements ExceptionMapper<ValidationException> {
+        @Override
+        public Response toResponse(ValidationException exception) {
+            Response.ResponseBuilder responseBuilder = Response.status(422);
+            String message = exception.getMessage();
+            if (exception instanceof ConstraintViolationException) {
+                List<String> messages = ((ConstraintViolationException) exception).getConstraintViolations().stream().map(constraintViolation -> {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String propertyPath = constraintViolation.getPropertyPath();
+                    if (propertyPath != null) {
+                        stringBuilder.append(propertyPath).append(" ");
+                    }
+                    return stringBuilder.append(constraintViolation.getMessage()).toString();
+                }).collect(Collectors.toList());
+                responseBuilder.entity(new ValidationErrorMessage(ImmutableList.copyOf(messages)));
+            } else if (message != null) {
+                responseBuilder.entity(new ValidationErrorMessage(ImmutableList.of(message)));
+            } else {
+                responseBuilder.entity(new ValidationErrorMessage(ImmutableList.of()));
+            }
+            return responseBuilder.build();
         }
     }
 }
