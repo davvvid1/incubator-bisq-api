@@ -1,5 +1,9 @@
 package bisq.api.http.model.payment;
 
+import bisq.api.http.model.Validatable;
+import bisq.api.http.model.Validations;
+
+import bisq.core.exceptions.ConstraintViolationException;
 import bisq.core.payment.payload.PaymentMethod;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,9 +17,6 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Schema(
         discriminatorProperty = "paymentMethod",
@@ -78,27 +79,34 @@ import org.hibernate.validator.constraints.NotEmpty;
         @JsonSubTypes.Type(value = WeChatPayPaymentAccount.class, name = PaymentMethod.WECHAT_PAY_ID),
         @JsonSubTypes.Type(value = WesternUnionPaymentAccount.class, name = PaymentMethod.WESTERN_UNION_ID)
 })
-public abstract class PaymentAccount {
+public abstract class PaymentAccount implements Validatable {
 
     public String id;
 
-    @NotBlank
     public String accountName;
 
     @SuppressWarnings("WeakerAccess")
     public String paymentDetails;
 
-    @NotNull
-    @NotBlank
     public String paymentMethod;
 
-    @NotBlank
     public String selectedTradeCurrency;
 
-    @NotEmpty
     public List<String> tradeCurrencies = new ArrayList<>();
 
     public PaymentAccount(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public void validate() {}
+
+    public Validations getValidations() {
+        ConstraintViolationException.Builder builder = new ConstraintViolationException.Builder();
+        Validations validations = new Validations(builder);
+        validations.notNull("accountName", accountName);
+        validations.notEmpty("accountName", accountName);
+        validations.notNull("selectedTradeCurrency", selectedTradeCurrency);
+        validations.notEmpty("selectedTradeCurrency", selectedTradeCurrency);
+        return validations;
     }
 }

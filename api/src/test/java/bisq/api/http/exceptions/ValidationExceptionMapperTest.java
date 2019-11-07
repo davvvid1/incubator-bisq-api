@@ -17,6 +17,8 @@
 
 package bisq.api.http.exceptions;
 
+import bisq.api.http.service.ValidationErrorMessage;
+
 import bisq.core.exceptions.ConstraintViolationException;
 import bisq.core.exceptions.ValidationException;
 

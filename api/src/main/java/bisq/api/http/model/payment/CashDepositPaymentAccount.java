@@ -1,14 +1,10 @@
 package bisq.api.http.model.payment;
 
-import bisq.api.http.model.validation.CountryCode;
+import bisq.api.http.model.Validations;
 
 import bisq.core.payment.payload.PaymentMethod;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
-
-
-import org.hibernate.validator.constraints.NotBlank;
 
 @JsonTypeName(PaymentMethod.CASH_DEPOSIT_ID)
 public class CashDepositPaymentAccount extends PaymentAccount {
@@ -23,14 +19,10 @@ public class CashDepositPaymentAccount extends PaymentAccount {
 
     public String branchId;
 
-    @CountryCode
-    @NotBlank
     public String countryCode;
 
-    @NotBlank
     public String holderName;
 
-    @NotBlank
     public String holderEmail;
 
     public String holderTaxId;
@@ -39,5 +31,17 @@ public class CashDepositPaymentAccount extends PaymentAccount {
 
     public CashDepositPaymentAccount() {
         super(PaymentMethod.CASH_DEPOSIT_ID);
+    }
+
+    public void validate() {
+        Validations validations = this.getValidations();
+        validations.notNull("countryCode", this.countryCode);
+        validations.notEmpty("countryCode", this.countryCode);
+        validations.countryCode("countryCode", this.countryCode);
+        validations.notNull("holderName", this.holderName);
+        validations.notEmpty("holderName", this.holderName);
+        validations.notNull("holderEmail", this.holderEmail);
+        validations.notEmpty("holderEmail", this.holderEmail);
+        validations.throwIfAnyValidation();
     }
 }

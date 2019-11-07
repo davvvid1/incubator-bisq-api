@@ -63,7 +63,7 @@ public class UserEndpointIT {
 
     @InSequence(2)
     @Test
-    public void changePassword_missingPayload_returns400() {
+    public void changePassword_missingPayload_returns422() {
         int alicePort = getAlicePort();
         given().
                 port(alicePort).

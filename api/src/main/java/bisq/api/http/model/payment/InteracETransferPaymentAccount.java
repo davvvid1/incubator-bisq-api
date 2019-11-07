@@ -1,29 +1,37 @@
 package bisq.api.http.model.payment;
 
+import bisq.api.http.model.Validatable;
+import bisq.api.http.model.Validations;
+
 import bisq.core.payment.payload.PaymentMethod;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-
-
-import org.hibernate.validator.constraints.NotBlank;
-
 @JsonTypeName(PaymentMethod.INTERAC_E_TRANSFER_ID)
-public class InteracETransferPaymentAccount extends PaymentAccount {
+public class InteracETransferPaymentAccount extends PaymentAccount implements Validatable {
 
-    @NotBlank
     public String emailOrMobileNr;
 
-    @NotBlank
     public String holderName;
 
-    @NotBlank
     public String question;
 
-    @NotBlank
     public String answer;
 
     public InteracETransferPaymentAccount() {
         super(PaymentMethod.INTERAC_E_TRANSFER_ID);
+    }
+
+    public void validate() {
+        Validations validations = this.getValidations();
+        validations.notNull("emailOrMobileNr", this.emailOrMobileNr);
+        validations.notEmpty("emailOrMobileNr", this.emailOrMobileNr);
+        validations.notNull("holderName", this.holderName);
+        validations.notEmpty("holderName", this.holderName);
+        validations.notNull("question", this.question);
+        validations.notEmpty("question", this.question);
+        validations.notNull("answer", this.answer);
+        validations.notEmpty("answer", this.answer);
+        validations.throwIfAnyValidation();
     }
 }

@@ -1100,8 +1100,8 @@ public class PaymentAccountEndpointIT {
 
     @Test
     public void create_missingAccountName_returnsError() throws Exception {
-        create_missingAttributeTemplate("accountName", null);
-        create_missingAttributeTemplate("accountName", " ");
+        create_missingAttributeTemplate("accountName");
+        create_emptyAttributeTemplate("accountName");
     }
 
     @InSequence(1)
@@ -1125,29 +1125,29 @@ public class PaymentAccountEndpointIT {
     @InSequence(1)
     @Test
     public void create_missingCountryCode_returnsError() throws Exception {
-        create_missingAttributeTemplate("countryCode", null);
-        create_missingAttributeTemplate("countryCode", " ");
+        create_missingAttributeTemplate("countryCode");
+        create_emptyAttributeTemplate("countryCode");
     }
 
     @InSequence(1)
     @Test
     public void create_missingHolderName_returnsError() throws Exception {
-        create_missingAttributeTemplate("holderName", null);
-        create_missingAttributeTemplate("holderName", " ");
+        create_missingAttributeTemplate("holderName");
+        create_emptyAttributeTemplate("holderName");
     }
 
     @InSequence(1)
     @Test
     public void create_missingBic_returnsError() throws Exception {
-        create_missingAttributeTemplate("bic", null);
-        create_missingAttributeTemplate("bic", " ");
+        create_missingAttributeTemplate("bic");
+        create_emptyAttributeTemplate("bic");
     }
 
     @InSequence(1)
     @Test
     public void create_missingIban_returnsError() throws Exception {
-        create_missingAttributeTemplate("iban", null);
-        create_missingAttributeTemplate("iban", " ");
+        create_missingAttributeTemplate("iban");
+        create_emptyAttributeTemplate("iban");
     }
 
     @InSequence(1)
@@ -1175,13 +1175,17 @@ public class PaymentAccountEndpointIT {
 //
         then().
                 statusCode(422).
-                and().body("errors.size()", equalTo(1)).
-                and().body("errors[0]", equalTo("Unable to recognize sub type of PaymentAccount. Value 'null' is invalid. Allowed values are: ADVANCED_CASH, ALI_PAY, CASH_DEPOSIT, CHASE_QUICK_PAY, CLEAR_X_CHANGE, BLOCK_CHAINS, F2F, FASTER_PAYMENTS, HAL_CASH, INTERAC_E_TRANSFER, MONEY_BEAM, MONEY_GRAM, NATIONAL_BANK, PERFECT_MONEY, POPMONEY, PROMPT_PAY, REVOLUT, SAME_BANK, SEPA, SEPA_INSTANT, SPECIFIC_BANKS, SWISH, UPHOLD, US_POSTAL_MONEY_ORDER, WECHAT_PAY, WESTERN_UNION"))
+                and().body("errors.size", equalTo(1)).
+                and().body("errors[0]", equalTo("paymentMethod may not be null"))
         ;
     }
 
-    private void create_missingAttributeTemplate(String fieldName, Object fieldValue) throws Exception {
-        create_sepaValidationFailureTemplate(fieldName, fieldValue, fieldName + " may not be empty");
+    private void create_missingAttributeTemplate(String fieldName) throws Exception {
+        create_sepaValidationFailureTemplate(fieldName, null, fieldName + " may not be null");
+    }
+
+    private void create_emptyAttributeTemplate(String fieldName) throws Exception {
+        create_sepaValidationFailureTemplate(fieldName, " ", fieldName + " may not be empty");
     }
 
     private void create_sepaValidationFailureTemplate(String fieldName, Object fieldValue, String expectedValidationMessage) throws Exception {
@@ -1200,7 +1204,8 @@ public class PaymentAccountEndpointIT {
 //
         then().
                 statusCode(422).
-                and().body("errors", hasItem(expectedValidationMessage))
+                and().body("errors.size", equalTo(1)).
+                and().body("errors[0]", equalTo(expectedValidationMessage))
         ;
     }
 
@@ -1225,7 +1230,8 @@ public class PaymentAccountEndpointIT {
 //
         then().
                 statusCode(422).
-                and().body("errors", hasItem(expectedValidationMessage))
+                and().body("errors.size", equalTo(1)).
+                and().body("errors[0]", equalTo(expectedValidationMessage))
         ;
     }
 

@@ -1,5 +1,6 @@
 package bisq.api.http.model.payment;
 
+import bisq.core.exceptions.ValidationException;
 import bisq.core.locale.CryptoCurrency;
 import bisq.core.locale.CurrencyUtil;
 import bisq.core.locale.FiatCurrency;
@@ -8,10 +9,6 @@ import bisq.core.payment.payload.PaymentAccountPayload;
 
 import java.util.List;
 import java.util.Optional;
-
-
-
-import javax.validation.ValidationException;
 
 public abstract class AbstractPaymentAccountConverter<B extends bisq.core.payment.PaymentAccount, BP extends PaymentAccountPayload, R extends PaymentAccount> implements PaymentAccountConverter<B, BP, R> {
 

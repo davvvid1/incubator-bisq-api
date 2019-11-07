@@ -17,34 +17,25 @@
 
 package bisq.api.http.exceptions;
 
-
 import bisq.api.http.service.ValidationErrorMessage;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import bisq.core.exceptions.ConstraintViolationException;
 import bisq.core.exceptions.ValidationException;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 
-
-
-import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
-import javax.validation.ValidationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -60,11 +51,10 @@ public final class ExceptionMappers {
     public static void register(ResourceConfig environment) {
         environment.register(new ExceptionMappers.EofExceptionMapper(), 1);
         environment.register(new ExceptionMappers.JsonParseExceptionMapper(), 1);
-        environment.register(new ExceptionMappers.BisqValidationExceptionMapper());
+        environment.register(new ExceptionMappers.JsonMappingExceptionMapper(), 1);
         environment.register(new ExceptionMappers.ExperimentalFeatureExceptionMapper());
         environment.register(new ExceptionMappers.InvalidTypeIdExceptionMapper());
         environment.register(new ExceptionMappers.NotFoundExceptionMapper());
-        environment.register(new ExceptionMappers.ValidationExceptionMapper());
         environment.register(new ExceptionMappers.UnauthorizedExceptionMapper());
         environment.register(new ExceptionMappers.ValidationExceptionMapper());
     }
@@ -78,16 +68,6 @@ public final class ExceptionMappers {
         return responseBuilder.type(MediaType.APPLICATION_JSON).build();
     }
 
-    public static class BisqValidationExceptionMapper implements ExceptionMapper<bisq.core.exceptions.ValidationException> {
-        @Override
-        public Response toResponse(bisq.core.exceptions.ValidationException exception) {
-            Response.ResponseBuilder responseBuilder = Response.status(422);
-            String message = exception.getMessage();
-            responseBuilder.entity(new ValidationErrorMessage(ImmutableList.of(message)));
-            return responseBuilder.build();
-        }
-    }
-
     public static class EofExceptionMapper implements ExceptionMapper<EofException> {
         @Override
         public Response toResponse(EofException e) {
@@ -99,6 +79,22 @@ public final class ExceptionMappers {
         @Override
         public Response toResponse(JsonParseException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    public static class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
+        @Override
+
+        public Response toResponse(JsonMappingException exception) {
+            String message = exception.getMessage();
+            Pattern pattern = Pattern.compile("missing property '(.*)' ");
+            Matcher matcher = pattern.matcher(message);
+            if (matcher.find()) {
+                message = matcher.group(1) + " may not be null";
+            } else {
+                message ="Unable to recognize payload";
+            }
+            return Response.status(422).entity(new ValidationErrorMessage(ImmutableList.of(message))).build();
         }
     }
 
@@ -136,33 +132,6 @@ public final class ExceptionMappers {
         @Override
         public Response toResponse(NotFoundException exception) {
             return Response.status(404).entity(exception.getMessage()).type(MediaType.TEXT_PLAIN_TYPE).build();
-        }
-    }
-
-    public static class ValidationExceptionMapper implements ExceptionMapper<ValidationException> {
-        @Override
-        public Response toResponse(ValidationException exception) {
-            Response.ResponseBuilder responseBuilder = Response.status(422);
-            String message = exception.getMessage();
-            if (exception instanceof ConstraintViolationException) {
-                List<String> messages = ((ConstraintViolationException) exception).getConstraintViolations().stream().map(constraintViolation -> {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    Path propertyPath = constraintViolation.getPropertyPath();
-                    if (propertyPath != null) {
-                        Iterator<Path.Node> pathIterator = constraintViolation.getPropertyPath().iterator();
-                        String node = null;
-                        while (pathIterator.hasNext())
-                            node = pathIterator.next().getName();
-                        if (node != null)
-                            stringBuilder.append(node).append(" ");
-                    }
-                    return stringBuilder.append(constraintViolation.getMessage()).toString();
-                }).collect(Collectors.toList());
-                responseBuilder.entity(new ValidationErrorMessage(ImmutableList.copyOf(messages)));
-            } else if (message != null) {
-                responseBuilder.entity(new ValidationErrorMessage(ImmutableList.of(message)));
-            }
-            return responseBuilder.build();
         }
     }
 
