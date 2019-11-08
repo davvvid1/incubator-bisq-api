@@ -52,7 +52,7 @@ public class JsonMappingExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_always_bodyIsViolationErrorMessageWithNonEmptyErrorList() {
+    public void toResponse_always_bodyIsViolationErrorMessageWithNonEmptyErrorList1() {
         ExceptionMappers.JsonMappingExceptionMapper mapper = new ExceptionMappers.JsonMappingExceptionMapper();
         Faker faker = Faker.instance();
         String propertyName = faker.internet().slug();
@@ -60,6 +60,23 @@ public class JsonMappingExceptionMapperTest {
         String suffix = faker.lorem().sentence();
         String msg = String.format("%s missing property '%s' %s", prefix, propertyName, suffix);
         String expectedError = String.format("%s may not be null", propertyName);
+
+        //        When
+        Response response = mapper.toResponse(new JsonMappingException(null, msg));
+
+        //        Then
+        Object entity = response.getEntity();
+        assertNotNull(entity);
+        assertInstanceOfValidationErrorMessage(entity);
+        ValidationErrorMessage payload = (ValidationErrorMessage) entity;
+        assertEquals(List.of(expectedError), payload.getErrors());
+    }
+
+    @Test
+    public void toResponse_always_bodyIsViolationErrorMessageWithNonEmptyErrorList2() {
+        ExceptionMappers.JsonMappingExceptionMapper mapper = new ExceptionMappers.JsonMappingExceptionMapper();
+        String msg = "Unrecognized error ";
+        String expectedError = "Unable to recognize payload";
 
         //        When
         Response response = mapper.toResponse(new JsonMappingException(null, msg));

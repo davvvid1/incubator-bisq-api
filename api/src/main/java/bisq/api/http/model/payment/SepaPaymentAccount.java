@@ -1,6 +1,22 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package bisq.api.http.model.payment;
 
-import bisq.api.http.model.Validatable;
 import bisq.api.http.model.Validations;
 
 import bisq.core.payment.payload.PaymentMethod;
@@ -28,17 +44,13 @@ public class SepaPaymentAccount extends PaymentAccount {
     }
 
     public void validate() {
-        Validations validations = this.getValidations();
-        validations.notNull("countryCode", this.countryCode);
-        validations.notEmpty("countryCode", this.countryCode);
-        validations.countryCode("countryCode", this.countryCode);
-        validations.notNull("holderName", this.holderName);
-        validations.notEmpty("holderName", this.holderName);
-        validations.notNull("bic", this.bic);
-        validations.notEmpty("bic", this.bic);
-        validations.notNull("iban", this.iban);
-        validations.notEmpty("iban", this.iban);
-        validations.notEmpty("acceptedCountries", this.acceptedCountries);
-        validations.throwIfAnyValidation();
+        Validations validations = getValidations();
+        validations.notEmpty("countryCode", countryCode);
+        validations.countryCode("countryCode", countryCode);
+        validations.notEmpty("holderName", holderName);
+        validations.notEmpty("bic", bic);
+        validations.notEmpty("iban", iban);
+        validations.notEmpty("acceptedCountries", acceptedCountries);
+        validations.throwIfAnyViolation();
     }
 }

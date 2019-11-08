@@ -1,3 +1,20 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package bisq.api.http.model.payment;
 
 import bisq.api.http.model.Validations;
@@ -30,20 +47,14 @@ public class SameBankAccountPaymentAccount extends PaymentAccount {
     }
 
     public void validate() {
-        Validations validations = this.getValidations();
-        validations.notNull("accountNr", this.accountNr);
-        validations.notEmpty("accountNr", this.accountNr);
-        validations.notNull("bankId", this.bankId);
-        validations.notEmpty("bankId", this.bankId);
-        validations.notNull("bankName", this.bankName);
-        validations.notEmpty("bankName", this.bankName);
-        validations.notNull("branchId", this.branchId);
-        validations.notEmpty("branchId", this.branchId);
-        validations.notNull("countryCode", this.countryCode);
-        validations.notEmpty("countryCode", this.countryCode);
-        validations.countryCode("countryCode", this.countryCode);
-        validations.notNull("holderName", this.holderName);
-        validations.notEmpty("holderName", this.holderName);
-        validations.throwIfAnyValidation();
+        Validations validations = getValidations();
+        validations.notEmpty("accountNr", accountNr);
+        validations.notEmpty("bankId", bankId);
+        validations.notEmpty("bankName", bankName);
+        validations.notEmpty("branchId", branchId);
+        validations.notEmpty("countryCode", countryCode);
+        validations.countryCode("countryCode", countryCode);
+        validations.notEmpty("holderName", holderName);
+        validations.throwIfAnyViolation();
     }
 }

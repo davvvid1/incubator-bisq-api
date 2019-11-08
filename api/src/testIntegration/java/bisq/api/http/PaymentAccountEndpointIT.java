@@ -1,3 +1,20 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package bisq.api.http;
 
 import bisq.api.http.model.payment.AdvancedCashPaymentAccount;
@@ -1100,8 +1117,8 @@ public class PaymentAccountEndpointIT {
 
     @Test
     public void create_missingAccountName_returnsError() throws Exception {
-        create_missingAttributeTemplate("accountName");
-        create_emptyAttributeTemplate("accountName");
+        create_missingAttributeTemplate("accountName", null);
+        create_missingAttributeTemplate("accountName", " ");
     }
 
     @InSequence(1)
@@ -1125,29 +1142,29 @@ public class PaymentAccountEndpointIT {
     @InSequence(1)
     @Test
     public void create_missingCountryCode_returnsError() throws Exception {
-        create_missingAttributeTemplate("countryCode");
-        create_emptyAttributeTemplate("countryCode");
+        create_missingAttributeTemplate("countryCode", null);
+        create_missingAttributeTemplate("countryCode", " ");
     }
 
     @InSequence(1)
     @Test
     public void create_missingHolderName_returnsError() throws Exception {
-        create_missingAttributeTemplate("holderName");
-        create_emptyAttributeTemplate("holderName");
+        create_missingAttributeTemplate("holderName", null);
+        create_missingAttributeTemplate("holderName", " ");
     }
 
     @InSequence(1)
     @Test
     public void create_missingBic_returnsError() throws Exception {
-        create_missingAttributeTemplate("bic");
-        create_emptyAttributeTemplate("bic");
+        create_missingAttributeTemplate("bic", null);
+        create_missingAttributeTemplate("bic", " ");
     }
 
     @InSequence(1)
     @Test
     public void create_missingIban_returnsError() throws Exception {
-        create_missingAttributeTemplate("iban");
-        create_emptyAttributeTemplate("iban");
+        create_missingAttributeTemplate("iban", null);
+        create_missingAttributeTemplate("iban", " ");
     }
 
     @InSequence(1)
@@ -1180,12 +1197,8 @@ public class PaymentAccountEndpointIT {
         ;
     }
 
-    private void create_missingAttributeTemplate(String fieldName) throws Exception {
-        create_sepaValidationFailureTemplate(fieldName, null, fieldName + " may not be null");
-    }
-
-    private void create_emptyAttributeTemplate(String fieldName) throws Exception {
-        create_sepaValidationFailureTemplate(fieldName, " ", fieldName + " may not be empty");
+    private void create_missingAttributeTemplate(String fieldName, Object fieldValue) throws Exception {
+        create_sepaValidationFailureTemplate(fieldName, fieldValue, fieldName + " may not be empty");
     }
 
     private void create_sepaValidationFailureTemplate(String fieldName, Object fieldValue, String expectedValidationMessage) throws Exception {

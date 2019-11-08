@@ -26,47 +26,47 @@ public class Validations {
 
     private ConstraintViolationException.Builder builder;
 
-    private boolean countryCodeCheck(String value) {
-        return CountryUtil.findCountryByCode(value).isPresent();
-    }
-
-    private boolean emptyCheck(String value) {
-        return value.trim().isEmpty();
-    }
-
-    private boolean emptyCheck(List<String> value) {
-        return value.isEmpty();
-    }
-
-    private boolean nullCheck(String value) {
-        return value == null;
-    }
-
     public Validations(ConstraintViolationException.Builder builder) {
         this.builder = builder;
     }
 
     public void countryCode(String path, String value) {
-        if (!nullCheck(value) && !emptyCheck(value) && !countryCodeCheck(value))
+        if (!isNull(value) && !isEmpty(value) && !isCountryCodeValid(value))
             builder.addViolation(path, "is not valid country code");
     }
 
     public void notEmpty(String path, String value) {
-        if (!nullCheck(value) && emptyCheck(value))
+        if (isNull(value) || isEmpty(value))
             builder.addViolation(path, "may not be empty");
     }
 
     public void notEmpty(String path, List<String> value) {
-        if (emptyCheck(value))
+        if (isNull(value) || isEmpty(value))
             builder.addViolation(path, "may not be empty");
     }
 
     public void notNull(String path, String value) {
-        if (nullCheck(value))
+        if (isNull(value))
             builder.addViolation(path, "may not be null");
     }
 
-    public void throwIfAnyValidation() {
-        builder.throwIfAnyValidation();
+    public void throwIfAnyViolation() {
+        builder.throwIfAnyViolation();
+    }
+
+    private boolean isCountryCodeValid(String value) {
+        return CountryUtil.findCountryByCode(value).isPresent();
+    }
+
+    private boolean isEmpty(String value) {
+        return value.trim().isEmpty();
+    }
+
+    private boolean isEmpty(List<String> value) {
+        return value.isEmpty();
+    }
+
+    private boolean isNull(Object value) {
+        return value == null;
     }
 }

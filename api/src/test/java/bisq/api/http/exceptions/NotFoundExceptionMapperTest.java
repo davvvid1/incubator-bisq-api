@@ -17,6 +17,8 @@
 
 package bisq.api.http.exceptions;
 
+import bisq.core.exceptions.NotFoundException;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

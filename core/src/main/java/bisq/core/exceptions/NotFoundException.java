@@ -15,10 +15,10 @@
  * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package bisq.api.http.exceptions;
+package bisq.core.exceptions;
 
-public class ExperimentalFeatureException extends RuntimeException {
-    public ExperimentalFeatureException() {
-        super("Experimental features disabled");
+public class NotFoundException extends RuntimeException {
+    public NotFoundException(String message) {
+        super(message);
     }
 }

@@ -1,15 +1,40 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package bisq.api.http.service.endpoint;
 
-import bisq.api.http.facade.PaymentAccountFacade;
 import bisq.api.http.model.PayloadValidator;
 import bisq.api.http.model.PaymentAccountList;
 import bisq.api.http.model.payment.PaymentAccount;
 import bisq.api.http.model.payment.PaymentAccountHelper;
 import bisq.api.http.service.ExperimentalFeature;
 
+import bisq.core.payment.PaymentAccountManager;
+import bisq.core.user.User;
+
 import bisq.common.UserThread;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 
@@ -37,13 +62,18 @@ public class PaymentAccountEndpoint {
 
     private final ExperimentalFeature experimentalFeature;
     private final PayloadValidator payloadValidator;
-    private final PaymentAccountFacade paymentAccountFacade;
+    private final PaymentAccountManager paymentAccountManager;
+    private final User user;
 
     @Inject
-    public PaymentAccountEndpoint(ExperimentalFeature experimentalFeature, PayloadValidator payloadValidator, PaymentAccountFacade paymentAccountFacade) {
+    public PaymentAccountEndpoint(ExperimentalFeature experimentalFeature,
+                                  PayloadValidator payloadValidator,
+                                  PaymentAccountManager paymentAccountManager,
+                                  User user) {
         this.experimentalFeature = experimentalFeature;
         this.payloadValidator = payloadValidator;
-        this.paymentAccountFacade = paymentAccountFacade;
+        this.paymentAccountManager = paymentAccountManager;
+        this.user = user;
     }
 
     @Operation(summary = "Remove payment account", description = ExperimentalFeature.NOTE)
@@ -53,7 +83,7 @@ public class PaymentAccountEndpoint {
         UserThread.execute(() -> {
             try {
                 experimentalFeature.assertEnabled();
-                paymentAccountFacade.removePaymentAccount(id);
+                paymentAccountManager.removePaymentAccount(id);
                 asyncResponse.resume(Response.status(Response.Status.NO_CONTENT).build());
             } catch (Throwable e) {
                 asyncResponse.resume(e);
@@ -69,7 +99,7 @@ public class PaymentAccountEndpoint {
                 experimentalFeature.assertEnabled();
                 payloadValidator.validateRequiredRequestPayload(account);
                 bisq.core.payment.PaymentAccount paymentAccount = PaymentAccountHelper.toBusinessModel(account);
-                PaymentAccount result = PaymentAccountHelper.toRestModel(paymentAccountFacade.addPaymentAccount(paymentAccount));
+                PaymentAccount result = PaymentAccountHelper.toRestModel(paymentAccountManager.addPaymentAccount(paymentAccount));
                 asyncResponse.resume(result);
             } catch (Throwable e) {
                 asyncResponse.resume(e);
@@ -82,10 +112,23 @@ public class PaymentAccountEndpoint {
     public void find(@Suspended AsyncResponse asyncResponse) {
         UserThread.execute(() -> {
             try {
-                asyncResponse.resume(paymentAccountFacade.getAccountList());
+                asyncResponse.resume(getAccountList());
             } catch (Throwable e) {
                 asyncResponse.resume(e);
             }
         });
+    }
+
+    private PaymentAccountList getAccountList() {
+        PaymentAccountList paymentAccountList = new PaymentAccountList();
+        paymentAccountList.paymentAccounts = getPaymentAccountList().stream()
+                .map(PaymentAccountHelper::toRestModel)
+                .collect(Collectors.toList());
+        return paymentAccountList;
+    }
+
+    private List<bisq.core.payment.PaymentAccount> getPaymentAccountList() {
+        Set<bisq.core.payment.PaymentAccount> paymentAccounts = user.getPaymentAccounts();
+        return null == paymentAccounts ? Collections.emptyList() : new ArrayList<>(paymentAccounts);
     }
 }

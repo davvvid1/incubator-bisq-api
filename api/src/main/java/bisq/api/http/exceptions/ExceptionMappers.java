@@ -18,6 +18,7 @@
 package bisq.api.http.exceptions;
 
 import bisq.core.exceptions.ConstraintViolationException;
+import bisq.core.exceptions.NotFoundException;
 import bisq.core.exceptions.ValidationException;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;

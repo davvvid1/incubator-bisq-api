@@ -66,7 +66,7 @@ public class ConstraintViolationException extends ValidationException {
             return new ConstraintViolationException(constraintViolations);
         }
 
-        public void throwIfAnyValidation() {
+        public void throwIfAnyViolation() {
             if (null != constraintViolations && !constraintViolations.isEmpty())
                 throw build();
         }

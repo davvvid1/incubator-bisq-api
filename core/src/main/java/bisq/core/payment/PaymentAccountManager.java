@@ -1,6 +1,24 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package bisq.core.payment;
 
 import bisq.core.account.witness.AccountAgeWitnessService;
+import bisq.core.exceptions.NotFoundException;
 import bisq.core.exceptions.ValidationException;
 import bisq.core.locale.CryptoCurrency;
 import bisq.core.locale.CurrencyUtil;
@@ -71,5 +89,14 @@ public class PaymentAccountManager {
             accountAgeWitnessService.publishMyAccountAgeWitness(paymentAccount.getPaymentAccountPayload());
         }
         return paymentAccount;
+    }
+
+    public void removePaymentAccount(String id) {
+        PaymentAccount paymentAccount = user.getPaymentAccount(id);
+        if (paymentAccount == null) {
+            System.out.println("Throw");
+             throw new NotFoundException("Payment account not found: " + id);
+        }
+        user.removePaymentAccount(paymentAccount);
     }
 }

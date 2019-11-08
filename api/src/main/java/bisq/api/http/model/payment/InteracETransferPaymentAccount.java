@@ -1,3 +1,20 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package bisq.api.http.model.payment;
 
 import bisq.api.http.model.Validatable;
@@ -23,15 +40,11 @@ public class InteracETransferPaymentAccount extends PaymentAccount implements Va
     }
 
     public void validate() {
-        Validations validations = this.getValidations();
-        validations.notNull("emailOrMobileNr", this.emailOrMobileNr);
-        validations.notEmpty("emailOrMobileNr", this.emailOrMobileNr);
-        validations.notNull("holderName", this.holderName);
-        validations.notEmpty("holderName", this.holderName);
-        validations.notNull("question", this.question);
-        validations.notEmpty("question", this.question);
-        validations.notNull("answer", this.answer);
-        validations.notEmpty("answer", this.answer);
-        validations.throwIfAnyValidation();
+        Validations validations = getValidations();
+        validations.notEmpty("emailOrMobileNr", emailOrMobileNr);
+        validations.notEmpty("holderName", holderName);
+        validations.notEmpty("question", question);
+        validations.notEmpty("answer", answer);
+        validations.throwIfAnyViolation();
     }
 }
