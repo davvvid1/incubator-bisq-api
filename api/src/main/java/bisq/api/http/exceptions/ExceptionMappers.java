@@ -17,24 +17,24 @@
 
 package bisq.api.http.exceptions;
 
-import bisq.api.http.model.ValidationErrorMessage;
-
 import bisq.core.exceptions.ConstraintViolationException;
 import bisq.core.exceptions.ValidationException;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+
+
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
